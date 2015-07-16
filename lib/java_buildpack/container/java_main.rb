@@ -55,8 +55,10 @@ module JavaBuildpack
       private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
 
       def release_text
+        @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT' if boot_launcher?
+
         [
-          port,
+          @droplet.environment_variables.as_env_vars,
           "#{qualify_path @droplet.java_home.root, @droplet.root}/bin/java",
           @droplet.additional_libraries.as_classpath,
           @droplet.java_opts.join(' '),
@@ -69,6 +71,10 @@ module JavaBuildpack
         @configuration[ARGUMENTS_PROPERTY]
       end
 
+      def boot_launcher?
+        main_class =~ /^org\.springframework\.boot\.loader\.(?:[JW]ar|Properties)Launcher$/
+      end
+
       def main_class
         JavaBuildpack::Util::JavaMainUtils.main_class(@application, @configuration)
       end
@@ -76,10 +82,6 @@ module JavaBuildpack
       def manifest_class_path
         values = JavaBuildpack::Util::JavaMainUtils.manifest(@application)[CLASS_PATH_PROPERTY]
         values.nil? ? [] : values.split(' ').map { |value| @droplet.root + value }
-      end
-
-      def port
-        main_class =~ /^org\.springframework\.boot\.loader\.(?:[JW]ar|Properties)Launcher$/ ? 'SERVER_PORT=$PORT' : nil
       end
 
     end

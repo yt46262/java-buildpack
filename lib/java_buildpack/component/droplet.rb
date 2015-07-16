@@ -38,6 +38,8 @@ module JavaBuildpack
       # @return [String] the id of component using this droplet
       attr_reader :component_id
 
+      attr_reader :environment_variables
+
       # @!attribute [r] java_home
       # @return [ImmutableJavaHome, MutableJavaHome] the shared +JavaHome+ instance for all components.  If the
       #                                              component using this instance is a jre, then this will be an
@@ -69,12 +71,13 @@ module JavaBuildpack
       #                                                       be an instance of +ImmutableJavaHome+.
       # @param [JavaOpts] java_opts                           the shared +JavaOpts+ instance for all components
       # @param [Pathname] root                                the root of the droplet
-      def initialize(additional_libraries, component_id, java_home, java_opts, root)
-        @additional_libraries = additional_libraries
-        @component_id         = component_id
-        @java_home            = java_home
-        @java_opts            = java_opts
-        @logger               = JavaBuildpack::Logging::LoggerFactory.instance.get_logger Droplet
+      def initialize(additional_libraries, component_id, environment_variables, java_home, java_opts, root)
+        @additional_libraries  = additional_libraries
+        @component_id          = component_id
+        @environment_variables = environment_variables
+        @java_home             = java_home
+        @java_opts             = java_opts
+        @logger                = JavaBuildpack::Logging::LoggerFactory.instance.get_logger Droplet
 
         buildpack_root = root + '.java-buildpack'
         sandbox_root   = buildpack_root + component_id
