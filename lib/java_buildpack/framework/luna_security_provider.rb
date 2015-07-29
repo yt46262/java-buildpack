@@ -32,7 +32,9 @@ module JavaBuildpack
         @droplet.copy_resources
 
         credentials = @application.services.find_service(FILTER)['credentials']
-        write_credentials credentials
+        write_host_certificate credentials
+        write_client_certificate credentials
+        write_client_private_key credentials
         write_host credentials
       end
 
@@ -114,20 +116,24 @@ module JavaBuildpack
         Pathname.new(File.expand_path('../rpm2cpio.py', __FILE__))
       end
 
-      def write_credentials(credentials)
-        FileUtils.mkdir_p host_certificate.parent
-        host_certificate.open(File::CREAT | File::WRONLY) { |f| f.write credentials['host-certificate'] }
-
+      def write_client_certificate(credentials)
         FileUtils.mkdir_p client_certificate.parent
         client_certificate.open(File::CREAT | File::WRONLY) { |f| f.write credentials['client-certificate'] }
+      end
 
+      def write_client_private_key(credentials)
         FileUtils.mkdir_p client_private_key.parent
         client_private_key.open(File::CREAT | File::WRONLY) { |f| f.write credentials['client-private-key'] }
       end
 
+      def write_host_certificate(credentials)
+        FileUtils.mkdir_p host_certificate.parent
+        host_certificate.open(File::CREAT | File::WRONLY) { |f| f.write credentials['host-certificate'] }
+      end
+
       def write_host(credentials)
         content = chrystoki.open(File::RDONLY) { |f| f.read }
-        content.gsub! /@@HOST@@/, credentials['host']
+        content.gsub!(/@@HOST@@/, credentials['host'])
 
         chrystoki.open(File::CREAT | File::WRONLY) do |f|
           f.truncate 0

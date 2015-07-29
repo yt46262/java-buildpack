@@ -35,7 +35,7 @@ shared_context 'droplet_helper' do
   let(:component_id) { described_class.to_s.split('::').last.snake_case }
 
   let(:droplet) do
-    JavaBuildpack::Component::Droplet.new(additional_libraries, component_id, java_home, java_opts, app_dir)
+    JavaBuildpack::Component::Droplet.new(additional_libraries, component_id, env_vars, java_home, java_opts, app_dir)
   end
 
   let(:sandbox) { droplet.sandbox }
@@ -43,6 +43,12 @@ shared_context 'droplet_helper' do
   let(:java_home) do
     delegate = double('MutableJavaHome', root: app_dir + '.test-java-home', version: %w(1 7 55 u60))
     JavaBuildpack::Component::ImmutableJavaHome.new delegate, app_dir
+  end
+
+  let(:env_vars) do
+    java_opts = JavaBuildpack::Component::EnvironmentVariables.new app_dir
+    java_opts.concat %w(test-var-2 test-var-1)
+    java_opts
   end
 
   let(:java_opts) do

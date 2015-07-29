@@ -20,17 +20,32 @@ require 'java_buildpack/util/qualify_path'
 module JavaBuildpack
   module Component
 
+    # An abstraction encapsulating the Environment Variables of an application.
+    #
+    # A new instance of this type should be created once for the application.
     class EnvironmentVariables < Array
       include JavaBuildpack::Util
 
+      # Creates an instance of the Environment Variables abstraction.
+      #
+      # @param [Pathname] droplet_root the root directory of the droplet
       def initialize(droplet_root)
         @droplet_root = droplet_root
       end
 
+      # Adds an environment variable. Prepends +$PWD+ to any variable values that are
+      # paths (relative to the droplet root) to ensure that the path is always accurate.
+      #
+      # @param [String] key the variable name
+      # @param [String] value the variable value
+      # @return [EnvironmentVariables] +self+ for chaining
       def add_environment_variable(key, value)
         self << "#{key}=#{qualify_value(value)}"
       end
 
+      # Returns the contents as an environment variable formatted as +<key>=<value>+
+      #
+      # @return [String] the contents as an environment variable
       def as_env_vars
         self
       end

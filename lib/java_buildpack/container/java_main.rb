@@ -42,6 +42,7 @@ module JavaBuildpack
       def release
         @droplet.additional_libraries.insert 0, @application.root
         manifest_class_path.each { |path| @droplet.additional_libraries << path }
+        @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT' if boot_launcher?
 
         release_text
       end
@@ -55,8 +56,6 @@ module JavaBuildpack
       private_constant :ARGUMENTS_PROPERTY, :CLASS_PATH_PROPERTY
 
       def release_text
-        @droplet.environment_variables.add_environment_variable 'SERVER_PORT', '$PORT' if boot_launcher?
-
         [
           @droplet.environment_variables.as_env_vars,
           "#{qualify_path @droplet.java_home.root, @droplet.root}/bin/java",
